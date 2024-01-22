@@ -16,6 +16,7 @@ using Azure.Identity;
 using Azure.Monitor.Ingestion;
 using Azure.Core;
 using System.Net;
+using Microsoft.Extensions.Options;
 
 namespace OpenAIGateway
 {
@@ -71,9 +72,10 @@ namespace OpenAIGateway
             string callId = data?.callId;
             String transcript = data?.transcript;
 
+            OpenAIClient openAIClient = new OpenAIClient(
+                new Uri("https://your-azure-openai-resource.com/"),
+                new AzureKeyCredential("your-azure-openai-resource-api-key"));
 
-            //Stream Chat Message with open AI
-            var openAIClient = getClient();
 
             var chatCompletionsOptions = new ChatCompletionsOptions()
             {
@@ -87,33 +89,10 @@ namespace OpenAIGateway
                 MaxTokens = 800
             };
 
+            Response<ChatCompletions> response = await openAIClient.GetChatCompletionsAsync(
+            "gpt-4", chatCompletionsOptions);
 
-            Response<StreamingChatCompletions> chatresponse = await openAIClient.GetChatCompletionsStreamingAsync(
-             deploymentOrModelName: "gpt-4", chatCompletionsOptions);
-            using StreamingChatCompletions streamingChatCompletions = chatresponse.Value;
-
-            string responseMessage = "";
-
-            await foreach (StreamingChatChoice choice in streamingChatCompletions.GetChoicesStreaming())
-            {
-                await foreach (ChatMessage message in choice.GetMessageStreaming())
-                {
-                    responseMessage = responseMessage + message.Content;
-                    Console.Write(message.Content);
-                }
-                Console.WriteLine();
-            }
-
-            var airesponse = JsonConvert.DeserializeObject<CallInsightInfo>(responseMessage);
-            var sentimentScore = airesponse.CallSentiment;
-            var callInsight = airesponse.CallInsight;
-
-            Console.Write(airesponse);
-            await LogSentiments(callId, sentimentScore, callInsight);
-
-            Console.WriteLine("Logs sent");
-
-            return new OkObjectResult(airesponse);
+            return new OkObjectResult(response);
         }
 
 
@@ -420,21 +399,20 @@ namespace OpenAIGateway
             return new OkObjectResult(responseMessage);
         }
 
-
+        
         [FunctionName("GetSuggestionForXBoxSupportAgent")]
         public static async Task<IActionResult> HandleGetSuggestionForXBoxSupportAgent(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
-            log.LogInformation("Processing handle suggesion on transcription request");
             string transcript = req.Query["transcript"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             transcript = transcript ?? data?.transcript;
 
-
-            //Stream Chat Message with open AI
-            var openAIClient = getClient();
+            OpenAIClient client = new OpenAIClient(
+                new Uri("https://your-azure-openai-resource.com/"),
+                new AzureKeyCredential("your-azure-openai-resource-api-key"));
 
             var chatCompletionsOptions = new ChatCompletionsOptions()
             {
@@ -447,25 +425,13 @@ namespace OpenAIGateway
                 Temperature = (float)1,
                 MaxTokens = 800            
             };
-        
 
-            Response<StreamingChatCompletions> chatresponse = await openAIClient.GetChatCompletionsStreamingAsync(
-             deploymentOrModelName: "gpt-4", chatCompletionsOptions);
-            using StreamingChatCompletions streamingChatCompletions = chatresponse.Value;
+            Response<ChatCompletions> response = await client.GetChatCompletionsAsync(
+            "gpt-4", chatCompletionsOptions);
 
-            string responseMessage = "";
-
-            await foreach (StreamingChatChoice choice in streamingChatCompletions.GetChoicesStreaming())
-            {
-                await foreach (ChatMessage message in choice.GetMessageStreaming())
-                {
-                    responseMessage = responseMessage + message.Content;
-                    Console.Write(message.Content);
-                }
-                Console.WriteLine();
-            }
-            return new OkObjectResult(responseMessage);
+            return new OkObjectResult(response);
         }
+
 
         [FunctionName("SendTestCustomLogs")]
         public static async Task<IActionResult> SendTestCustomLogs(
