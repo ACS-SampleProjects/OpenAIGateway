@@ -27,13 +27,13 @@ namespace OpenAIGateway
         "The assistant's role is to take this transcript and turn it into a cute, short story",
         };
 
-        public static string getBriefSummarySystemPrompt = "You are an AI assist, listening to the conversation between the xbox support agent and the user.";
-        public static string getBriefSummaryUserPrompt = "From the conversation generate a brief summary of the discussion that can be sent to the xbox support agent supervisor to get context on the conversation so far.";
+        public static string getBriefSummarySystemPrompt = "You are an AI assist, listening to the conversation between the support agent and the user.";
+        public static string getBriefSummaryUserPrompt = "From the conversation generate a brief summary of the discussion that can be sent to the support agent supervisor to get context on the conversation so far.";
 
         
         // Prompts for call insight generation 
-        public static string sentimentScoreSystemPrompt = "You are an AI assistant listening to the conversation between the Xbox support agent and the user.";
-        public static string sentimentScoreUserPrompt = @"From the above conversation between the Xbox agent and the user,
+        public static string sentimentScoreSystemPrompt = "You are an AI assistant listening to the conversation between the support agent and the user.";
+        public static string sentimentScoreUserPrompt = @"From the above conversation between the agent and the user,
                         Generate a sentiment score Positive, Negative or Neutral, based on the conversation, customer satisfaction, and agent ability to support the user.
                         Geneate a call insight. 
 
@@ -44,14 +44,14 @@ namespace OpenAIGateway
                             }";
 
 
-        // Prompt for xBoxAgentSupport
-        public static string XBoxAgentSupportUserPrompt = @"From the above conversation between the Xbox agent and the user,
+        // Prompt for ContosoAgentSupport
+        public static string ContosoAgentSupportUserPrompt = @"From the above conversation between the support agent and the user,
                         Extract user content and fill in the requirements form data
-                        If the user-provided content is incomplete, stuttered, or unclear, suggest the Xbox support agent with polite suggestions to clarify what was understood and what the agent should ask to fulfill the questions. 
+                        If the user-provided content is incomplete, stuttered, or unclear, suggest the support agent with polite suggestions to clarify what was understood and what the agent should ask to fulfill the questions. 
                         The goal is the make sure the user details and issues are well understood and the required details are collected on the form.
                         If the date or mailing address is not valid, suggest agent to get the details from the user.
                         If the purchase date is older than 2 years from the current date, then mark product_under_warranty form data as false.
-                        Suggest an agent with Xbox troubleshooting suggestions.
+                        Suggest an agent with troubleshooting suggestions.
                         The response should be a JSON format.
                      
                                 {
@@ -74,7 +74,7 @@ namespace OpenAIGateway
                                   },
                                   ""suggested_reply"": ""..."",
                                 } ";
-        public static string XBoxAgentSupportSystemPrompt = "You are an AI assistant assisting an Xbox support agent, listening to the conversation between the Xbox support agent and the user.";
+        public static string ContosoAgentSupportSystemPrompt = "You are an AI assistant assisting an support agent, listening to the conversation between the support agent and the user.";
 
     }
 }

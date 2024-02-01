@@ -400,8 +400,8 @@ namespace OpenAIGateway
         }
 
         
-        [FunctionName("GetSuggestionForXBoxSupportAgent")]
-        public static async Task<IActionResult> HandleGetSuggestionForXBoxSupportAgent(
+        [FunctionName("GetSuggestionForContosoSupportAgent")]
+        public static async Task<IActionResult> HandleGetSuggestionForContosoSupportAgent(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             string transcript = req.Query["transcript"];
@@ -418,9 +418,9 @@ namespace OpenAIGateway
             {
                 Messages =
                    {
-                        new ChatMessage(ChatRole.System, Constants.XBoxAgentSupportSystemPrompt),
+                        new ChatMessage(ChatRole.System, Constants.ContosoAgentSupportSystemPrompt),
                         new ChatMessage(ChatRole.User, transcript),
-                        new ChatMessage(ChatRole.User, Constants.XBoxAgentSupportUserPrompt)
+                        new ChatMessage(ChatRole.User, Constants.ContosoAgentSupportUserPrompt)
                     },
                 Temperature = (float)1,
                 MaxTokens = 800            
