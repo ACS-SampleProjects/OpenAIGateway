@@ -20,7 +20,7 @@ using Microsoft.Extensions.Options;
 
 namespace OpenAIGateway
 {
-    public static class OpenAIGateway
+    public class OpenAIGateway
     {
         [FunctionName("GetSummary")]
         public static async Task<IActionResult> GetSummary(
@@ -61,7 +61,7 @@ namespace OpenAIGateway
         }
 
         [FunctionName("CallInSights")]
-        public static async Task<IActionResult> CallInSights(
+        public async Task<IActionResult> CallInSights(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             log.LogInformation("Processing call insights on transcription request");
@@ -69,13 +69,11 @@ namespace OpenAIGateway
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
-            string callId = data?.callId;
             String transcript = data?.transcript;
 
             OpenAIClient openAIClient = new OpenAIClient(
-                new Uri("https://your-azure-openai-resource.com/"),
-                new AzureKeyCredential("your-azure-openai-resource-api-key"));
-
+                new Uri("<<https://your-azure-openai-resource.com/>>"),
+                new AzureKeyCredential("<<your-azure-openai-resource-api-key>>"));
 
             var chatCompletionsOptions = new ChatCompletionsOptions()
             {
@@ -90,9 +88,9 @@ namespace OpenAIGateway
             };
 
             Response<ChatCompletions> response = await openAIClient.GetChatCompletionsAsync(
-            "gpt-4", chatCompletionsOptions);
+            "<<your-deployment-name>>", chatCompletionsOptions);
 
-            return new OkObjectResult(response);
+            return new OkObjectResult(response.Value.Choices[0].Message.Content);
         }
 
 
@@ -404,15 +402,13 @@ namespace OpenAIGateway
         public static async Task<IActionResult> HandleGetSuggestionForContosoSupportAgent(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
-            string transcript = req.Query["transcript"];
-
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
-            transcript = transcript ?? data?.transcript;
+            String transcript = data?.transcript;
 
             OpenAIClient client = new OpenAIClient(
-                new Uri("https://your-azure-openai-resource.com/"),
-                new AzureKeyCredential("your-azure-openai-resource-api-key"));
+                new Uri("<<https://your-azure-openai-resource.com/>>"),
+                new AzureKeyCredential("<<your-azure-openai-resource-api-key>>"));
 
             var chatCompletionsOptions = new ChatCompletionsOptions()
             {
@@ -425,11 +421,17 @@ namespace OpenAIGateway
                 Temperature = (float)1,
                 MaxTokens = 800            
             };
+            Response<ChatCompletions> response = null;
+            try
+            {
+                response = await client.GetChatCompletionsAsync(
+                "<<your-deployment-name>>", chatCompletionsOptions);
+            } catch(Exception e) 
+            {
+                Console.WriteLine(e);
+            }
 
-            Response<ChatCompletions> response = await client.GetChatCompletionsAsync(
-            "gpt-4", chatCompletionsOptions);
-
-            return new OkObjectResult(response);
+            return new OkObjectResult(response.Value.Choices[0].Message.Content);
         }
 
 
